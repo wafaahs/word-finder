@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import debounce from "lodash/debounce";
+import { useEffect, useMemo } from "react";
+
 
 export default function App() {
   const [input, setInput] = useState('');
@@ -10,6 +13,7 @@ export default function App() {
   const [pattern, setPattern] = useState("");
   const [startsWith, setStartsWith] = useState("");
   const [endsWith, setEndsWith] = useState("");
+  const [loading, setLoading] = useState(false);
 
 
   useEffect(() => {
@@ -20,6 +24,7 @@ export default function App() {
 
 
   const findMatches = () => {
+    setLoading(true);
   const results = words.filter(word => {
     const lower = word.toLowerCase();
 
@@ -52,7 +57,23 @@ export default function App() {
   });
 
   setResults(results);
+  setLoading(false);
 };
+
+  const debouncedFindMatches = useMemo(() => debounce(findMatches, 300), [
+    words,
+    includeLetters,
+    excludeLetters,
+    length,
+    pattern,
+    startsWith,
+    endsWith,
+  ]);
+
+  useEffect(() => {
+  debouncedFindMatches();
+  return () => debouncedFindMatches.cancel(); // Cleanup
+  }, [includeLetters, excludeLetters, length, pattern, startsWith, endsWith]);
 
 
   return (
@@ -126,6 +147,8 @@ export default function App() {
           Find Words
         </button>
       </div>
+      {loading && <p className="text-blue-500 font-semibold">Searching...</p>}
+
 
       {results.length > 0 && (
         <div className="w-full max-w-md mt-6 bg-white p-4 rounded-xl shadow overflow-y-auto max-h-96">
