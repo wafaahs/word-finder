@@ -13,6 +13,8 @@ export default function App() {
   const [startsWith, setStartsWith] = useState("");
   const [endsWith, setEndsWith] = useState("");
   const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const resultsPerPage = 20;
 
 
   useEffect(() => {
