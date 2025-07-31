@@ -4,21 +4,56 @@ export default function App() {
   const [input, setInput] = useState('');
   const [words, setWords] = useState([]);
   const [results, setResults] = useState([]);
+  const [includeLetters, setIncludeLetters] = useState("");
+  const [excludeLetters, setExcludeLetters] = useState("");
+  const [length, setLength] = useState("");
+  const [pattern, setPattern] = useState("");
+  const [startsWith, setStartsWith] = useState("");
+  const [endsWith, setEndsWith] = useState("");
+
 
   useEffect(() => {
-    fetch('/words.json')
+    fetch('words_dictionary.json')
       .then(res => res.json())
-      .then(data => setWords(data));
+      .then(data => setWords(Object.keys(data)));
   }, []);
 
+
   const findMatches = () => {
-    const letters = input.toLowerCase().split('').sort().join('');
-    const matches = words.filter(word => {
-      const wordSorted = word.toLowerCase().split('').sort().join('');
-      return word.length === letters.length && wordSorted === letters;
-    });
-    setResults(matches);
-  };
+  const results = words.filter(word => {
+    const lower = word.toLowerCase();
+
+    // ✅ Word Length
+    if (length && lower.length !== parseInt(length)) return false;
+
+    // ✅ Include letters (must contain ALL)
+    for (let char of includeLetters.toLowerCase()) {
+      if (!lower.includes(char)) return false;
+    }
+
+    // ✅ Exclude letters
+    for (let char of excludeLetters.toLowerCase()) {
+      if (lower.includes(char)) return false;
+    }
+
+    // ✅ Pattern matching using RegExp (e.g. "a.d.o")
+    if (pattern) {
+      const regex = new RegExp(`^${pattern.toLowerCase()}$`);
+      if (!regex.test(lower)) return false;
+    }
+
+    // ✅ Starts with
+    if (startsWith && !lower.startsWith(startsWith.toLowerCase())) return false;
+
+    // ✅ Ends with
+    if (endsWith && !lower.endsWith(endsWith.toLowerCase())) return false;
+
+    return true;
+  });
+
+  setResults(results);
+};
+
 
   return (
     <div className="min-h-screen bg-gray-100 text-gray-800 flex flex-col items-center justify-center p-4">
@@ -33,6 +68,56 @@ export default function App() {
           onChange={(e) => setInput(e.target.value)}
           className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
+        <div className="mt-4 space-y-3">
+          <input
+            type="text"
+            placeholder="Include letters (e.g. aei)"
+            value={includeLetters}
+            onChange={(e) => setIncludeLetters(e.target.value)}
+            className="w-full p-2 border rounded"
+          />
+
+          <input
+            type="text"
+            placeholder="Exclude letters (e.g. xyz)"
+            value={excludeLetters}
+            onChange={(e) => setExcludeLetters(e.target.value)}
+            className="w-full p-2 border rounded"
+          />
+
+          <input
+            type="number"
+            placeholder="Word length (e.g. 5)"
+            value={length}
+            onChange={(e) => setLength(e.target.value)}
+            className="w-full p-2 border rounded"
+          />
+
+          <input
+            type="text"
+            placeholder="Pattern (e.g. a.d.o)"
+            value={pattern}
+            onChange={(e) => setPattern(e.target.value)}
+            className="w-full p-2 border rounded"
+          />
+
+          <input
+            type="text"
+            placeholder="Starts with (e.g. un)"
+            value={startsWith}
+            onChange={(e) => setStartsWith(e.target.value)}
+            className="w-full p-2 border rounded"
+          />
+
+          <input
+            type="text"
+            placeholder="Ends with (e.g. ing)"
+            value={endsWith}
+            onChange={(e) => setEndsWith(e.target.value)}
+            className="w-full p-2 border rounded"
+          />
+        </div>
+
 
         <button
           onClick={findMatches}
