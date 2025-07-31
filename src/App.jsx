@@ -13,7 +13,7 @@ export default function App() {
 
 
   useEffect(() => {
-    fetch('words_dictionary.json')
+    fetch('/words_dictionary.json')
       .then(res => res.json())
       .then(data => setWords(Object.keys(data)));
   }, []);
