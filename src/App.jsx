@@ -159,6 +159,26 @@ export default function App() {
               <li key={idx}>{word}</li>
             ))}
           </ul>
+          <div className="flex justify-center items-center gap-2 mt-4">
+  <button
+    disabled={currentPage === 1}
+    onClick={() => setCurrentPage(currentPage - 1)}
+    className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+  >
+    Prev
+  </button>
+  <span className="font-medium">
+    Page {currentPage} of {Math.ceil(results.length / resultsPerPage)}
+  </span>
+  <button
+    disabled={currentPage >= Math.ceil(results.length / resultsPerPage)}
+    onClick={() => setCurrentPage(currentPage + 1)}
+    className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+  >
+    Next
+  </button>
+</div>
+
         </div>
       )}
     </div>
